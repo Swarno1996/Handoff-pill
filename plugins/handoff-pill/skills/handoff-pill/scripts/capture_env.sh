@@ -36,12 +36,22 @@ elif have sw_vers; then os="macOS $(sw_vers -productVersion)"; fi
 echo "  os: $(q "$os")"
 echo "  workdir: $(q "$(home_rel "$PWD")")"
 echo "  languages:"
-have python3 && echo "    python: $(q "$(python3 -c 'import platform;print(platform.python_version())')")"
-have node    && echo "    node: $(q "$(node --version | sed 's/^v//')")"
-have go      && echo "    go: $(q "$(go version | awk '{print $3}' | sed 's/^go//')")"
-have rustc   && echo "    rust: $(q "$(rustc --version | awk '{print $2}')")"
-if have java; then jv="$(java -version 2>&1 | head -1 | awk -F'"' '{print $2}')"; [ -n "$jv" ] && echo "    java: $(q "$jv")"; fi
-have claude  && echo "    claude_code: $(q "$(claude --version 2>/dev/null | head -1)")"
+ver() { # ver <label> <command...>: print a version line only if the probe succeeds
+  local label="$1"; shift
+  have "$1" || return 0
+  local v; v="$("$@" 2>/dev/null | head -1)" || return 0
+  [ -n "$v" ] && echo "    $label: $(q "$v")"
+  return 0
+}
+ver python      python3 -c 'import platform;print(platform.python_version())'
+ver node        sh -c 'node --version | sed "s/^v//"'
+# shellcheck disable=SC2016  # $N is for awk inside sh -c, not for this shell
+ver go          sh -c 'go version | awk "{print \$3}" | sed "s/^go//"'
+# shellcheck disable=SC2016
+ver rust        sh -c 'rustc --version | awk "{print \$2}"'
+# shellcheck disable=SC2016
+ver java        sh -c 'java -version 2>&1 | head -1 | awk -F"\"" "{print \$2}"'
+ver claude_code claude --version
 
 # repos ---------------------------------------------------------------------
 repos=()
