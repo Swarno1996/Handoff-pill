@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint shell scripts
+        run: shellcheck install.sh scripts/build.sh plugins/handoff-pill/skills/handoff-pill/scripts/capture_env.sh
+
+      - name: Validate plugin manifests
+        run: |
+          python3 -m json.tool .claude-plugin/marketplace.json > /dev/null
+          python3 -m json.tool plugins/handoff-pill/.claude-plugin/plugin.json > /dev/null
+
+      - name: Validate skill frontmatter
+        run: |
+          python3 - <<'PY'
+          import re, sys
+          s = open("plugins/handoff-pill/skills/handoff-pill/SKILL.md").read()
+          m = re.match(r"^---\n(.*?)\n---\n", s, re.S)
+          assert m, "missing frontmatter"
+          fm = m.group(1)
+          name = re.search(r"^name:\s*(\S+)", fm, re.M)
+          desc = re.search(r'^description:\s*"(.*)"\s*$', fm, re.M)
+          assert name and name.group(1) == "handoff-pill", "bad name"
+          assert desc and len(desc.group(1)) <= 1024, "description missing or over 1024 chars"
+          print("frontmatter ok,", len(desc.group(1)), "chars")
+          PY
+
+      - name: Capture script runs and leaks no secrets
+        run: |
+          mkdir -p "$RUNNER_TEMP/home"
+          printf '%s' '{"mcpServers":{"x":{"type":"http","url":"https://u:SEKRIT@h/mcp","headers":{"Authorization":"SEKRIT"}}}}' > "$RUNNER_TEMP/home/.claude.json"
+          HOME="$RUNNER_TEMP/home" bash plugins/handoff-pill/skills/handoff-pill/scripts/capture_env.sh > out.yaml
+          cat out.yaml
+          python3 -c "import yaml; yaml.safe_load(open('out.yaml'))"
+          ! grep -q SEKRIT out.yaml
+
+      - name: dist/handoff-pill.skill is up to date
+        run: |
+          ./scripts/build.sh
+          git diff --exit-code -- dist/ || { echo "Run ./scripts/build.sh and commit dist/"; exit 1; }

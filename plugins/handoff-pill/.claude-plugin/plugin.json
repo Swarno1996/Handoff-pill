@@ -1,0 +1,13 @@
+{
+  "name": "handoff-pill",
+  "version": "2.0.0",
+  "description": "Generate a handoff pill (context plus environment manifest) and rehydrate it in a new chat.",
+  "author": {
+    "name": "Swarnadeep Bhattacharya",
+    "url": "https://github.com/Swarno1996"
+  },
+  "homepage": "https://github.com/Swarno1996/Handoff-pill",
+  "repository": "https://github.com/Swarno1996/Handoff-pill",
+  "license": "MIT",
+  "keywords": ["context", "handoff", "long-chat", "session", "environment", "mcp"]
+}
