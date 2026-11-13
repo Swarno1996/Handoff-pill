@@ -7,15 +7,27 @@ domain. Inline guidance is in [brackets]; delete it in the real pill.
 
 # <Project>: Handoff Pill (through <version or milestone>)
 
-**Purpose.** Paste or upload this file at the start of a new chat. It
-carries everything needed to resume <project> without re-deriving anything.
+**Purpose.** Upload or paste this file at the start of a new chat. The
+manifest rebuilds the environment; the sections below restore the context.
+The new chat starts with a fresh token budget and loads only this file.
 
-**Critical operational facts.** [The most load-bearing section. State what
-does not survive the chat boundary: the working container resets, files
-built in-chat are gone, uploads do not carry over. Then state exactly which
-files the user must re-upload for which kinds of work, by name. Example
-shape: "To do build work, upload `<artifact.tar.gz>`; without it a new chat
-can reason and write code but cannot build or test."]
+```yaml
+pill: 2
+project: <slug>
+generated: <ISO 8601 date and time>
+source: { platform: <claude-code | claude-ai | ...>, chat: "<title>", model: <id> }
+# [Fill from references/manifest-spec.md. In Claude Code, paste the output of
+#  scripts/capture_env.sh here and trim to what the work used. Every entry
+#  that must be restored carries a `restore` field. No secret values.]
+```
+
+**Critical operational facts.** [The most load-bearing prose. State what
+does not survive the chat boundary on this platform: sandbox installs,
+in-chat files, uploads. Name exactly which files the user must bring for
+which kinds of work, and which manifest items only the user can restore
+(connectors, secrets, uploads). Example: "To do build work, upload
+`<artifact.tar.gz>` and connect GitHub; without them a new chat can reason
+and write code but cannot build, test or push."]
 
 ---
 
@@ -75,11 +87,14 @@ actionable without re-discussion.]
 ## 10. How to resume in a new chat
 
 [Numbered protocol: 1. Upload this pill. 2. Upload <named artifacts> if
-<kind of work> is needed. 3. State the target task. 4. Expect <the normal
-working loop>. Include any bookkeeping that must happen on changes, e.g.
-"a version bump touches these four places."]
+<kind of work> is needed. 3. Let the agent show its rehydration plan
+(present, missing, not portable) and approve it. 4. Do the user-side
+restores it lists. 5. State the target task. 6. Expect <the normal working
+loop>. Include any bookkeeping that must happen on changes, e.g. "a version
+bump touches these four places."]
 
 ---
 
-*Generated <date>, at the end of the "<chat title>" session. Sources: [the
-live conversation, delivered artifacts, prior documents used].*
+*Generated <date> by handoff-pill v2, at the end of the "<chat title>"
+session on <platform>. Sources: [the live conversation, capture_env.sh
+output, delivered artifacts, prior documents used].*
