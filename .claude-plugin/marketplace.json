@@ -1,0 +1,21 @@
+{
+  "name": "handoff-pill",
+  "owner": {
+    "name": "Swarnadeep Bhattacharya",
+    "url": "https://github.com/Swarno1996"
+  },
+  "metadata": {
+    "description": "Move a long AI chat into a fresh one with its context and environment intact.",
+    "version": "2.0.0"
+  },
+  "plugins": [
+    {
+      "name": "handoff-pill",
+      "source": "./plugins/handoff-pill",
+      "description": "Generate a handoff pill (context plus environment manifest) and rehydrate it in a new chat.",
+      "version": "2.0.0",
+      "license": "MIT",
+      "keywords": ["context", "handoff", "long-chat", "session", "environment", "mcp"]
+    }
+  ]
+}
